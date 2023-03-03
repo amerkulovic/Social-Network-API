@@ -31,6 +31,21 @@ app.get('/all-users', (req, res) => {
   });
 });
 
+app.delete('/delete-user/:username', (req, res) => {
+  User.findOneAndDelete(
+    { username: req.params.username },
+    (err, result) => {
+      if (result) {
+        res.status(200).json(result);
+        console.log(`Deleted: ${result}`);
+      } else {
+        console.log('Uh Oh, something went wrong');
+        res.status(500).json({ error: 'Something went wrong' });
+      }
+    }
+  );
+});
+
 db.once("open", () => {
   app.listen(PORT, () => {
     console.log(`API server running on port ${PORT}!`);
