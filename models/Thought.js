@@ -45,6 +45,4 @@ thoughtSchema
 
 const Thought = mongoose.model("Thought", thoughtSchema);
 
-const handleError = (err) => console.error(err);
-
 module.exports = Thought;

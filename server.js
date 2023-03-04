@@ -62,18 +62,51 @@ app.delete("/delete-user/:id", (req, res) => {
   });
 });
 
+// Find a users friends
+
+app.get("/find-user/:id/friends", (req, res) => {
+  User.findOne({ _id: req.params.id }, (err, result) => {
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  });
+});
+
 // Thought Routes
 
 // Post a thought
 app.post("/new-thought", (req, res) => {
-  const newThought = new Thought({ thoughtText: req.body.thoughtText, username: req.body.username });
-  newThought.save();
-  if (newThought) {
-    res.status(201).json(newThought);
-  } else {
-    res.status(500).json({ error: "Something went wrong" });
-  }
+  Thought.create(req.body)
+    .then((thought) => {
+      return User.findOneAndUpdate(
+        {
+          _id: req.body.user_id,
+        },
+        {
+          $addToSet: {
+            thought: thought._id,
+          },
+        },
+        {
+          runValidators: true,
+          new: true,
+        }
+      );
+    })
+    .then((user) => {
+      if (!user) {
+        res.status(401).json(user);
+      } else {
+        res.status(200).json("thought created successfully");
+      }
+    })
+    .catch((error) => {
+      res.status(500).json(error);
+    });
 });
+
 // Get all of the thoughts
 app.get("/all-thoughts", (req, res) => {
   Thought.find({}, (err, result) => {
@@ -97,10 +130,22 @@ app.get("/find-thought/:id", (req, res) => {
   });
 });
 
-// Friend Routes
+// Update a thought
 
-app.get("/find-user/:id/friends", (req, res) => {
-  User.findOne({ _id: req.params.id }, (err, result) => {
+app.put("/update-thought/:id", (req, res) => {
+  Thought.findOneAndUpdate({ _id: req.params.id }, { thoughtText: req.body.thoughtText }, { new: true }, (err, result) => {
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(500).json({ message: "something went wrong" });
+    }
+  });
+});
+
+// Delete a thought
+
+app.delete("/delete-thought/:id", (req, res) => {
+  Thought.findOneAndDelete({ _id: req.params.id }, (err, result) => {
     if (result) {
       res.status(200).json(result);
     } else {
@@ -108,6 +153,18 @@ app.get("/find-user/:id/friends", (req, res) => {
     }
   });
 });
+
+// /thoughts/:thoughtId/reactions
+
+// app.post("/find-thought/:id/reactions", (req, res) => {
+//   const newReaction = new Thought({ reactionBody: req.body.reactionBody, username: req.body.username });
+//   newReaction.save();
+//   if (newReaction) {
+//     res.status(201).json(newReaction);
+//   } else {
+//     res.status(500).json({ error: "Something went wrong" });
+//   }
+// });
 
 // Server Port
 
