@@ -94,16 +94,6 @@ app.post("/new-friend", (req, res) => {
 });
 // Find a users friends
 
-app.get("/find-user/:id/friends", (req, res) => {
-  User.findOne({ _id: req.params.id }, (err, result) => {
-    if (result) {
-      res.status(200).json(result);
-    } else {
-      res.status(500).json({ error: "Something went wrong" });
-    }
-  });
-});
-
 // Thought Routes
 
 // Post a thought
@@ -186,13 +176,43 @@ app.delete("/delete-thought/:id", (req, res) => {
 
 // Reaction routes
 app.post("/new-reaction", (req, res) => {
-  const newReaction = new Reaction({ reactionBody: req.body.reactionBody, username: req.body.username });
-  newReaction.save();
-  if (newReaction) {
-    res.status(201).json(newReaction);
-  } else {
-    res.status(500).json({ error: "Something went wrong" });
-  }
+  Reaction.create(req.body)
+  .then((reaction) => {
+    return Thought.findOneAndUpdate(
+      {
+        _id: req.body.thought_id,
+      },
+      {
+        $addToSet: {
+          reactions: reaction._id,
+        },
+      },
+      {
+        runValidators: true,
+        new: true,
+      }
+    );
+  })
+  .then((user) => {
+    if (!user) {
+      res.status(401).json(user);
+    } else {
+      res.status(200).json("reaction created successfully");
+    }
+  })
+  .catch((error) => {
+    res.status(500).json(error);
+  });
+});
+
+app.delete("/delete-reaction/:id", (req, res) => {
+  Reaction.findOneAndDelete({ _id: req.params.id }, (err, result) => {
+    if (result) {
+      res.status(200).json(result);
+    } else {
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  });
 });
 
 // app.post("/find-thought/:id/reactions", (req, res) => {
