@@ -62,6 +62,36 @@ app.delete("/delete-user/:id", (req, res) => {
   });
 });
 
+// Add a friend to a User
+app.post("/new-friend", (req, res) => {
+  User.create(req.body)
+    .then((friend) => {
+      return User.findOneAndUpdate(
+        {
+          _id: req.body.user_id,
+        },
+        {
+          $addToSet: {
+            friends: friend._id,
+          },
+        },
+        {
+          runValidators: true,
+          new: true,
+        }
+      );
+    })
+    .then((user) => {
+      if (!user) {
+        res.status(401).json(user);
+      } else {
+        res.status(200).json("friend added successfully");
+      }
+    })
+    .catch((error) => {
+      res.status(500).json(error);
+    });
+});
 // Find a users friends
 
 app.get("/find-user/:id/friends", (req, res) => {
