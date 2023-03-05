@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("./config/connection");
 
-const { User, Thought } = require("./models");
+const { User, Thought, Reaction } = require("./models");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -184,7 +184,16 @@ app.delete("/delete-thought/:id", (req, res) => {
   });
 });
 
-// /thoughts/:thoughtId/reactions
+// Reaction routes
+app.post("/new-reaction", (req, res) => {
+  const newReaction = new Reaction({ reactionBody: req.body.reactionBody, username: req.body.username });
+  newReaction.save();
+  if (newReaction) {
+    res.status(201).json(newReaction);
+  } else {
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
 
 // app.post("/find-thought/:id/reactions", (req, res) => {
 //   const newReaction = new Thought({ reactionBody: req.body.reactionBody, username: req.body.username });
