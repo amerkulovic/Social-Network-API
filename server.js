@@ -62,6 +62,8 @@ app.delete("/delete-user/:id", (req, res) => {
   });
 });
 
+// Friend Routes
+
 // Add a friend to a User
 app.post("/new-friend", (req, res) => {
   User.create(req.body)
@@ -92,6 +94,9 @@ app.post("/new-friend", (req, res) => {
       res.status(500).json(error);
     });
 });
+
+// Delete a friend
+
 // Find a users friends
 
 // Thought Routes
@@ -175,6 +180,8 @@ app.delete("/delete-thought/:id", (req, res) => {
 });
 
 // Reaction routes
+
+// Create a reaction
 app.post("/new-reaction", (req, res) => {
   Reaction.create(req.body)
   .then((reaction) => {
@@ -205,6 +212,8 @@ app.post("/new-reaction", (req, res) => {
   });
 });
 
+// Delete a reaction
+
 app.delete("/delete-reaction/:id", (req, res) => {
   Reaction.findOneAndDelete({ _id: req.params.id }, (err, result) => {
     if (result) {
@@ -214,16 +223,6 @@ app.delete("/delete-reaction/:id", (req, res) => {
     }
   });
 });
-
-// app.post("/find-thought/:id/reactions", (req, res) => {
-//   const newReaction = new Thought({ reactionBody: req.body.reactionBody, username: req.body.username });
-//   newReaction.save();
-//   if (newReaction) {
-//     res.status(201).json(newReaction);
-//   } else {
-//     res.status(500).json({ error: "Something went wrong" });
-//   }
-// });
 
 // Server Port
 
