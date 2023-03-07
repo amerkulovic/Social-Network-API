@@ -29,7 +29,7 @@ app.get("/all-users", (req, res) => {
     } else {
       res.status(500).json({ error: "Something went wrong" });
     }
-  });
+  }).populate("thought");
 });
 // Find a specific user by ID
 app.get("/find-user/:id", (req, res) => {
@@ -184,32 +184,32 @@ app.delete("/delete-thought/:id", (req, res) => {
 // Create a reaction
 app.post("/new-reaction", (req, res) => {
   Reaction.create(req.body)
-  .then((reaction) => {
-    return Thought.findOneAndUpdate(
-      {
-        _id: req.body.thought_id,
-      },
-      {
-        $addToSet: {
-          reactions: reaction._id,
+    .then((reaction) => {
+      return Thought.findOneAndUpdate(
+        {
+          _id: req.body.thought_id,
         },
-      },
-      {
-        runValidators: true,
-        new: true,
+        {
+          $addToSet: {
+            reactions: reaction._id,
+          },
+        },
+        {
+          runValidators: true,
+          new: true,
+        }
+      );
+    })
+    .then((user) => {
+      if (!user) {
+        res.status(401).json(user);
+      } else {
+        res.status(200).json("reaction created successfully");
       }
-    );
-  })
-  .then((user) => {
-    if (!user) {
-      res.status(401).json(user);
-    } else {
-      res.status(200).json("reaction created successfully");
-    }
-  })
-  .catch((error) => {
-    res.status(500).json(error);
-  });
+    })
+    .catch((error) => {
+      res.status(500).json(error);
+    });
 });
 
 // Delete a reaction
