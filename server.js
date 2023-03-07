@@ -96,6 +96,22 @@ app.post("/new-friend", (req, res) => {
 });
 
 // Delete a friend
+// Doesn't actually delete the friend, returns 200 though
+
+app.delete("/remove-friend/:userId/:friendId", (req, res) => {
+  User.findOneAndUpdate(
+    { _id: req.params.userId },
+    { $pull: { friends: req.params.friendId } },
+    { runValidators: true, new: true }
+  )
+    .then((user) =>
+      !user
+        ? res.status(404).json({ message: 'No user with this id!' })
+        : res.json(user)
+    )
+    .catch((err) => res.status(500).json(err));
+
+});
 
 // Find a users friends
 
@@ -190,7 +206,6 @@ app.post("/new-reaction/:thoughtId", (req, res) => {
 
 // Delete a reaction
 
-// Remove video response
 app.delete("/remove-reaction/:thoughtId/:reactionId", (req, res) => {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
@@ -204,16 +219,6 @@ app.delete("/remove-reaction/:thoughtId/:reactionId", (req, res) => {
       )
       .catch((err) => res.status(500).json(err));
 
-});
-
-app.delete("/delete-reaction/:id", (req, res) => {
-  Reaction.findOneAndDelete({ _id: req.params.id }, (err, result) => {
-    if (result) {
-      res.status(200).json(result);
-    } else {
-      res.status(500).json({ error: "Something went wrong" });
-    }
-  });
 });
 
 // Server Port
