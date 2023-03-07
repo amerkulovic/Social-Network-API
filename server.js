@@ -29,9 +29,7 @@ app.get("/all-users", (req, res) => {
     } else {
       res.status(500).json({ error: "Something went wrong" });
     }
-  })
-    .populate("thought")
-    .populate("friends");
+  }).populate("thought");
 });
 // Find a specific user by ID
 app.get("/find-user/:id", (req, res) => {
@@ -183,38 +181,30 @@ app.delete("/delete-thought/:id", (req, res) => {
 
 // Reaction routes
 
-// Create a reaction
-app.post("/new-reaction", (req, res) => {
-  Reaction.create(req.body)
-    .then((reaction) => {
-      return Thought.findOneAndUpdate(
-        {
-          _id: req.body.thought_id,
-        },
-        {
-          $addToSet: {
-            reactions: reaction._id,
-          },
-        },
-        {
-          runValidators: true,
-          new: true,
-        }
-      );
-    })
-    .then((user) => {
-      if (!user) {
-        res.status(401).json(user);
-      } else {
-        res.status(200).json("reaction created successfully");
-      }
-    })
-    .catch((error) => {
-      res.status(500).json(error);
-    });
+// Add a reaction
+app.post("/new-reaction/:thoughtId", (req, res) => {
+  Thought.findOneAndUpdate({ _id: req.params.thoughtId }, { $addToSet: { reactions: req.body } }, { runValidators: true, new: true })
+    .then((thought) => (!thought ? res.status(404).json({ message: "No thought with this id!" }) : res.json(thought)))
+    .catch((err) => res.status(500).json(err));
 });
 
 // Delete a reaction
+
+// Remove video response
+app.delete("/remove-reaction/:thoughtId/:reactionId", (req, res) => {
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { runValidators: true, new: true }
+    )
+      .then((thought) =>
+        !thought
+          ? res.status(404).json({ message: 'No thought with this id!' })
+          : res.json(thought)
+      )
+      .catch((err) => res.status(500).json(err));
+
+});
 
 app.delete("/delete-reaction/:id", (req, res) => {
   Reaction.findOneAndDelete({ _id: req.params.id }, (err, result) => {
