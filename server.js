@@ -29,7 +29,9 @@ app.get("/all-users", (req, res) => {
     } else {
       res.status(500).json({ error: "Something went wrong" });
     }
-  }).populate("thought");
+  })
+    .populate("thought")
+    .populate("friends");
 });
 // Find a specific user by ID
 app.get("/find-user/:id", (req, res) => {
