@@ -43,7 +43,7 @@ app.get("/find-user/:id", (req, res) => {
 });
 // Update a user by their username
 app.put("/update-user/:id", (req, res) => {
-  User.findOneAndUpdate({ _id: req.params.id }, { username: req.body.username }, { new: true }, (err, result) => {
+  User.findOneAndUpdate({ _id: req.params.id }, { username: req.body.username, email: req.body.email }, { new: true }, (err, result) => {
     if (result) {
       res.status(200).json(result);
     } else {
@@ -95,21 +95,18 @@ app.post("/new-friend", (req, res) => {
     });
 });
 
+// app.post("/new-reaction/:thoughtId", (req, res) => {
+//   Thought.findOneAndUpdate({ _id: req.params.thoughtId }, { $addToSet: { reactions: req.body } }, { runValidators: true, new: true })
+//     .then((thought) => (!thought ? res.status(404).json({ message: "No thought with this id!" }) : res.json(thought)))
+//     .catch((err) => res.status(500).json(err));
+// });
+
 // Delete a friend
 
 app.delete("/remove-friend/:userId/:friendId", (req, res) => {
-  User.findOneAndUpdate(
-    { _id: req.params.userId },
-    { $pull: { friends: req.params.friendId } },
-    { runValidators: true, new: true }
-  )
-    .then((user) =>
-      !user
-        ? res.status(404).json({ message: 'No user with this id!' })
-        : res.json(user)
-    )
+  User.findOneAndUpdate({ _id: req.params.userId }, { $pull: { friends: req.params.friendId } }, { runValidators: true, new: true })
+    .then((user) => (!user ? res.status(404).json({ message: "No user with this id!" }) : res.json(user)))
     .catch((err) => res.status(500).json(err));
-
 });
 
 // Thought Routes
@@ -204,18 +201,9 @@ app.post("/new-reaction/:thoughtId", (req, res) => {
 // Delete a reaction
 
 app.delete("/remove-reaction/:thoughtId/:reactionId", (req, res) => {
-    Thought.findOneAndUpdate(
-      { _id: req.params.thoughtId },
-      { $pull: { reactions: { reactionId: req.params.reactionId } } },
-      { runValidators: true, new: true }
-    )
-      .then((thought) =>
-        !thought
-          ? res.status(404).json({ message: 'No thought with this id!' })
-          : res.json(thought)
-      )
-      .catch((err) => res.status(500).json(err));
-
+  Thought.findOneAndUpdate({ _id: req.params.thoughtId }, { $pull: { reactions: { reactionId: req.params.reactionId } } }, { runValidators: true, new: true })
+    .then((thought) => (!thought ? res.status(404).json({ message: "No thought with this id!" }) : res.json(thought)))
+    .catch((err) => res.status(500).json(err));
 });
 
 // Server Port
