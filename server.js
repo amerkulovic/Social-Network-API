@@ -96,7 +96,6 @@ app.post("/new-friend", (req, res) => {
 });
 
 // Delete a friend
-// Doesn't actually delete the friend, returns 200 though
 
 app.delete("/remove-friend/:userId/:friendId", (req, res) => {
   User.findOneAndUpdate(
@@ -112,8 +111,6 @@ app.delete("/remove-friend/:userId/:friendId", (req, res) => {
     .catch((err) => res.status(500).json(err));
 
 });
-
-// Find a users friends
 
 // Thought Routes
 
