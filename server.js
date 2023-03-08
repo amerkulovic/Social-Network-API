@@ -65,16 +65,16 @@ app.delete("/delete-user/:id", (req, res) => {
 // Friend Routes
 
 // Add a friend to a User
-app.post("/new-friend", (req, res) => {
-  User.create(req.body)
+app.post("/new-friend/:userId/:friendId", (req, res) => {
+  User.findOneAndUpdate(req.params.userId)
     .then((friend) => {
       return User.findOneAndUpdate(
         {
-          _id: req.body.user_id,
+          _id: req.params.userId,
         },
         {
           $addToSet: {
-            friends: friend._id,
+            friends: req.params.friendId,
           },
         },
         {
